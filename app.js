@@ -15,7 +15,8 @@ window.initMap = function () {
             lat: 28.6876424,
             lng: -81.4019766
         },
-        zoom: 10
+        zoom: 20,
+        mapId: '9ffa16729c1a3c66'
     };
 
     map = new google.maps.Map(containerId, options);
