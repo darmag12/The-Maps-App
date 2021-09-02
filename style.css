@@ -74,6 +74,14 @@ select {
   }
 }
 /* END OF CSS RESET */
+html,
+body{
+    margin: 0;
+    padding: 0;
+}
 
 
+#map{
+    height: 50vh;
+}
 
