@@ -1,6 +1,13 @@
 // Variables
 let appKey = 'AIzaSyBXlrpB1sbqwFV3Ka2r1dYvgGoyPDLlGC4';
-let containerId = document.getElementById('map');
+
+// Contains All the DOM elements
+const domElements = {
+    mapContainer: document.getElementById('map'),
+    showListings: document.getElementById('show-listings'),
+    hideListings: document.getElementById('hide-listings')
+}
+
 let map;
 let locations;
 let marker;
@@ -22,7 +29,7 @@ window.initMap = function () {
         mapId: '9ffa16729c1a3c66'
     };
 
-    map = new google.maps.Map(containerId, options);
+    map = new google.maps.Map(domElements.mapContainer, options);
 
     locations = [
         {title: 'I-4 Eastbound Rest Area', location: {lat: 28.7018043, lng: -81.402416}},
@@ -60,14 +67,18 @@ window.initMap = function () {
     marker.addListener('click', function(){
       populateInfoWindow(this, infoWindow)
     });
+
     map.fitBounds(bounds);
+
+    domElements.showListings
+
     }); // end of forEach loop
 
     function populateInfoWindow(marker, infoWind){
         if(infoWind.marker != marker){
             infoWind.marker = marker;
-            infoWindow.setContent(`<div>${marker.title}</div>`);
-            infoWindow.open(map, marker);
+            infoWind.setContent(`<div>${marker.title}</div>`);
+            infoWind.open(map, marker);
         }
     }
 
