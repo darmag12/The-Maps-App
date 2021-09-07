@@ -74,7 +74,7 @@ window.initMap = function () {
 
     // Added click event listener on the marker
     marker.addListener('click', function(){
-      populateInfoWindow(this, infoWindow)
+      populateInfoWindow(this, infoWindow);
     });
 
     }); // end of forEach loop
@@ -87,6 +87,10 @@ window.initMap = function () {
             infoWind.marker = marker;
             infoWind.setContent(`<div>${marker.title}</div>`);
             infoWind.open(map, marker);
+            // Make sure the marker property is cleared if the infowindow is closed.
+            infoWind.addListener('closeclick', function(){
+                infoWind.setMarker(null);
+            });
         }
     }
 
