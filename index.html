@@ -7,20 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Map App</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+    rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
         <div class="row">
-            <div class="col-6 options-box">
-                <h1>Find Your New NYC Home</h1>
-                <div>
-                    <input id="show-listings" type="button" value="Show Listings">
-                    <input id="hide-listings" type="button" value="Hide Listings">
+            <div class="col-4 options-box">
+                <h2 class="text-center">Find I4 Rest Areas</h2>
+                <div class="listings-btn">
+                    <input id="show-listings" class="btn btn-primary" type="button" value="Show Rest Areas">
+                    <input id="hide-listings" class="btn btn-warning" type="button" value="Hide Rest Areas">
                 </div>
             </div>
-            <div class="col-6" id="map"></div>
+            <div class="col-8" id="map"></div>
         </div>
     </div>
 </body>
