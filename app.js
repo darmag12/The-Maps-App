@@ -24,15 +24,41 @@ script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&callback=ini
 // Attached callback function to the `window` object
 window.initMap = function () {
     let markers = [];
+    // Creates a styles array to use with the map.
+    let styles = [
+        {featureType: 'road.highway',
+        elementType: 'geometry',
+         stylers: [
+            { color: '#424242' },
+            { lightness: 20 },
+         ]
+        
+        },
+
+        {featureType: 'road.highway.controlled_access',
+        elementType: 'geometry',
+         stylers: [
+            { color: '#FFAB40' },
+            { lightness: 20 },
+         ]
+        
+        },
+    ]
 
     // JS API is loaded and available
     let options = {
         center: orlandoCod,
         zoom: 13,
+        styles: styles,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            mapTypeIds: ["roadmap", "terrain", "hybrid", "satellite"],
+        }
         // mapId: '9ffa16729c1a3c66'
     };
 
     map = new google.maps.Map(domElements.mapContainerStr, options);
+    map.setTilt();
 
     locations = [
         {title: 'I-4 Westbound Rest Area', location: {lat: 28.703015, lng: -81.3869928}},
@@ -91,6 +117,9 @@ window.initMap = function () {
             infoWind.addListener('closeclick', function(){
                 infoWind.setMarker(null);
             });
+
+            let streetViewService = new google.maps.StreetViewService();
+            let radius = 50;
         }
     }
 
