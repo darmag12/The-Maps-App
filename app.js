@@ -5,7 +5,8 @@ let appKey = 'AIzaSyBXlrpB1sbqwFV3Ka2r1dYvgGoyPDLlGC4';
 const domElements = {
     mapContainerStr: document.getElementById('map'),
     showListingsStr: document.getElementById('show-listings'),
-    hideListingsStr: document.getElementById('hide-listings')
+    hideListingsStr: document.getElementById('hide-listings'),
+    panoContainerStr: document.getElementById('pano')
 }
 
 let map;
@@ -17,8 +18,9 @@ const orlandoCod = {lat: 28.5384, lng: -81.3789};
 
 // Created the script tag & set the appropriate attributes
 let script = document.createElement('script');
+script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&libraries=geometry&callback=initMap`;
 script.async = true;
-script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&callback=initMap`;
+
 
 
 // Attached callback function to the `window` object
@@ -110,16 +112,46 @@ window.initMap = function () {
 
     function populateInfoWindow(marker, infoWind){
         if(infoWind.marker != marker){
+            // Clear the infowindow content to give the streetview time to load.
+            infoWind.setContent('');
             infoWind.marker = marker;
-            infoWind.setContent(`<div>${marker.title}</div>`);
-            infoWind.open(map, marker);
+            // infoWind.setContent(`<div>${marker.title}</div>`);
+            // infoWind.open(map, marker);
             // Make sure the marker property is cleared if the infowindow is closed.
             infoWind.addListener('closeclick', function(){
-                infoWind.setMarker(null);
+                infoWind.marker = null;
             });
 
             let streetViewService = new google.maps.StreetViewService();
             let radius = 50;
+            // In case the status is OK, which means the pano was found, compute the
+            // position of the streetview image, then calculate the heading, then get a
+            // panorama from that and set the options
+            function getStreetView(data, status) {
+                if(status == google.maps.StreetViewStatus.OK){
+                    let nearStreetViewLocation = data.location.latLng;
+                    let heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
+                        infoWind.setContent(`<div>${marker.title}</div><div id="pano"></div>`);
+
+                    let panoramaOptions = {
+                        position: nearStreetViewLocation,
+                        pov: {
+                            heading: heading,
+                            pitch: 30
+                        }
+                    };
+
+                    let panorama = new google.maps.StreetViewPanorama(domElements.panoContainerStr, panoramaOptions);
+
+                } else {
+                    infoWind.setContent(`<div>${marker.title}</div><div>No Steet View Found ):</div>`);
+                }
+            }
+            // Use streetview service to get the closest streetview image within
+            // 50 meters of the markers position
+            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+            // Open the infowindow on the correct marker.
+            infoWind.open(map, marker);
         }
     }
 
