@@ -141,7 +141,7 @@ window.initMap = function () {
                         }
                     };
 
-                    let panorama = new google.maps.StreetViewPanorama(domElements.panoContainerStr, panoramaOptions);
+                    let panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
 
                 } else {
                     infoWind.setContent(`<div>${marker.title}</div><div>No Steet View Found ):</div>`);
