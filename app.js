@@ -1,189 +1,119 @@
+'use strict';
 // Variables
-let appKey = 'AIzaSyBXlrpB1sbqwFV3Ka2r1dYvgGoyPDLlGC4';
-
+const appKey = 'AIzaSyCBDIBTQI6A550hCzOErcK-ewHGs3OEd2o';
+const baseUrl = `https://rethink.agilemile.com/?agile_tp=true&trip_type=1`;
+// let str = `&origin_address=${}&origin_lat=${}&origin_lng=${}&dest_address=${}&dest_lat=${}&dest_lng=${}`
 // Contains All the DOM elements
 const domElements = {
-    mapContainerStr: document.getElementById('map'),
-    showListingsStr: document.getElementById('show-listings'),
-    hideListingsStr: document.getElementById('hide-listings'),
-    panoContainerStr: document.getElementById('pano')
-}
-
-let map;
-let locations;
-let marker;
-let infoWindow;
-let bounds;
-const orlandoCod = {lat: 28.5384, lng: -81.3789};
+  commuteOrigin: document.getElementById('origin'),
+  commuteDestination: document.getElementById('destination'),
+  commuteSearch: document.getElementById('commute_search')
+};
 
 // Created the script tag & set the appropriate attributes
 let script = document.createElement('script');
-script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&libraries=geometry&callback=initMap`;
+script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&libraries=places&callback=initMap`;
 script.async = true;
 
-
-
 // Attached callback function to the `window` object
-window.initMap = function () {
-    let markers = [];
-    // Creates a styles array to use with the map.
-    let styles = [
-        {featureType: 'road.highway',
-        elementType: 'geometry',
-         stylers: [
-            { color: '#424242' },
-            { lightness: 20 },
-         ]
-        
-        },
+window.initMap = function() {
+  const options = {
+    componentRestrictions: { country: ['us'] },
+    fields: ['formatted_address', 'geometry', 'name'],
+    strictBounds: false
+  };
+  const originAutocomplete = new google.maps.places.Autocomplete(
+    domElements.commuteOrigin,
+    options
+  );
+  const destinationAutocomplete = new google.maps.places.Autocomplete(
+    domElements.commuteDestination,
+    options
+  );
 
-        {featureType: 'road.highway.controlled_access',
-        elementType: 'geometry',
-         stylers: [
-            { color: '#FFAB40' },
-            { lightness: 20 },
-         ]
-        
-        },
-    ]
+  // EventListeners callbacks
+  originAutocomplete.addListener('place_changed', onOriginPlaceChanged);
+  destinationAutocomplete.addListener(
+    'place_changed',
+    onDestinationPlaceChanged
+  );
+  // domElements.commuteSearch.addEventListener('click', onCommuteSearch);
 
-    // JS API is loaded and available
-    let options = {
-        center: orlandoCod,
-        zoom: 13,
-        styles: styles,
-        mapTypeControl: true,
-        mapTypeControlOptions: {
-            mapTypeIds: ["roadmap", "terrain", "hybrid", "satellite"],
-        }
-        // mapId: '9ffa16729c1a3c66'
-    };
-
-    map = new google.maps.Map(domElements.mapContainerStr, options);
-    map.setTilt();
-
-    locations = [
-        {title: 'I-4 Westbound Rest Area', location: {lat: 28.703015, lng: -81.3869928}},
-        {title: 'Polk County Rest Area I-4 Westbound', location:{lat: 28.172558, lng:-81.767027}},
-        {title: 'Polk County Rest Area I-4 Eastbound', location:{lat: 28.1676031, lng:-81.7730702}},
-        {title: 'Love\'s Travel Stop', location:{lat: 28.1551445, lng: -81.8186561}}
-    ]
-
-    infoWindow = new google.maps.InfoWindow();
-
-    // loop through each location and create a new marker for each one
-    locations.forEach((location, i) => {
-        // marker variables
-        let title;
-        let position;
-
-
-        title = location.title
-        position = location.location
-
-
-        // new marker instance
-        marker = new google.maps.Marker({
-        position: position,
-        label: {
-            text: "\ue63d", // always start with \u then the icon code
-            fontFamily: "Material Icons",
-            color: "#ffffff",
-            className: "rest-area-icons",
-            fontSize: "18px",
-          },
-        title: title,
-        animation: google.maps.Animation.DROP,
-        id: i
-    });
-
-    // Push each marker into the markers array
-    markers.push(marker);
-
-    // Added click event listener on the marker
-    marker.addListener('click', function(){
-      populateInfoWindow(this, infoWindow);
-    });
-
-    }); // end of forEach loop
-
-    domElements.showListingsStr.addEventListener('click', showListings);
-    domElements.hideListingsStr.addEventListener('click', hideListings);
-
-    function populateInfoWindow(marker, infoWind){
-        if(infoWind.marker != marker){
-            // Clear the infowindow content to give the streetview time to load.
-            infoWind.setContent('');
-            infoWind.marker = marker;
-            // infoWind.setContent(`<div>${marker.title}</div>`);
-            // infoWind.open(map, marker);
-            // Make sure the marker property is cleared if the infowindow is closed.
-            infoWind.addListener('closeclick', function(){
-                infoWind.marker = null;
-            });
-
-            let streetViewService = new google.maps.StreetViewService();
-            let radius = 50;
-            // In case the status is OK, which means the pano was found, compute the
-            // position of the streetview image, then calculate the heading, then get a
-            // panorama from that and set the options
-            function getStreetView(data, status) {
-                if(status == google.maps.StreetViewStatus.OK){
-                    let nearStreetViewLocation = data.location.latLng;
-                    let heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-                        infoWind.setContent(`<div>${marker.title}</div><div id="pano"></div>`);
-
-                    let panoramaOptions = {
-                        position: nearStreetViewLocation,
-                        pov: {
-                            heading: heading,
-                            pitch: 30
-                        }
-                    };
-
-                    let panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
-
-                } else {
-                    infoWind.setContent(`<div>${marker.title}</div><div>No Steet View Found ):</div>`);
-                }
-            }
-            // Use streetview service to get the closest streetview image within
-            // 50 meters of the markers position
-            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-            // Open the infowindow on the correct marker.
-            infoWind.open(map, marker);
-        }
+  // get origin details
+  function onOriginPlaceChanged() {
+    let originLat,
+      originLng,
+      originPlace,
+      originValue,
+      replaceSpace,
+      originUrl,
+      encodedValue;
+    originPlace = originAutocomplete.getPlace();
+    originValue = domElements.commuteOrigin.value;
+    if (!originPlace.geometry) {
+      // user did not select an origin (reset origin field)
+      domElements.commuteOrigin.value = '';
+      domElements.commuteOrigin.placeholder = 'Enter a valid origin';
+    } else {
+      originLat = originPlace.geometry.location.lat();
+      originLng = originPlace.geometry.location.lng();
+      replaceSpace = originValue.replace(/\s/g, '%20');
+      encodedValue = replaceSpace.replace(/,/g, '%2C');
+      originUrl = `&origin_address=${encodedValue}&origin_lat=${originLat}&origin_lng=${originLng}`;
+      return originUrl;
     }
+  }
 
-    function showListings() {
-        // created a new instance of the boundary object
-        bounds = new google.maps.LatLngBounds();
-        // Extends the boundaries of the map for each marker
-        markers.forEach(mark => {
-            // console.log(mark);
-            mark.setMap(map);
-            bounds.extend(mark.position);
-    
-        });
-        map.fitBounds(bounds);
-
+  // get destination details
+  function onDestinationPlaceChanged() {
+    let destinationLat,
+      destinationLng,
+      destinationPlace,
+      destinationValue,
+      replaceSpace,
+      destinationUrl,
+      commuteUrl,
+      encodedValue,
+      getOrigin;
+    getOrigin = onOriginPlaceChanged;
+    destinationPlace = destinationAutocomplete.getPlace();
+    destinationValue = domElements.commuteDestination.value;
+    if (!destinationPlace.geometry) {
+      // user did not select a destination (reset dest field)
+      domElements.commuteDestination.value = '';
+      domElements.commuteDestination.placeholder = 'Enter a valid destination';
+    } else {
+      domElements.commuteSearch.classList.remove('isDisabled');
+      destinationLat = destinationPlace.geometry.location.lat();
+      destinationLng = destinationPlace.geometry.location.lng();
+      replaceSpace = destinationValue.replace(/\s/g, '%20');
+      encodedValue = replaceSpace.replace(/,/g, '%2C');
+      destinationUrl = `&dest_address=${encodedValue}&dest_lat=${destinationLat}&dest_lng=${destinationLng}`;
+      // return destinationUrl;
+      // concat the base, origin and destination
+      commuteUrl = `${baseUrl}${getOrigin()}${destinationUrl}`;
+      // set href for search
+      domElements.commuteSearch.href = commuteUrl;
     }
+  }
 
-    function hideListings() {
-        markers.forEach(mark => {
-            mark.setMap(null);
-        });
-    }
-
-
+  // search commute
+  // function onCommuteSearch(e) {
+  //   // prevent reload onclick
+  //   // e.preventDefault();
+  //   let commuteUrl;
+  //   let getOrigin = onOriginPlaceChanged;
+  //   let getDestinaton = onDestinationPlaceChanged;
+  //   if (
+  //     !domElements.commuteOrigin.value === '' &&
+  //     !domElements.commuteDestination.value === ''
+  //   ) {
+  //     commuteUrl = `${baseUrl}${getOrigin()}${getDestinaton()}`;
+  //     domElements.commuteSearch.href = commuteUrl;
+  //     // console.log(getOrigin());
+  //     // console.log(getDestinaton());
+  //   }
+  // }
 };
-
 // Appended the 'script' element to 'head'
 document.head.appendChild(script);
-
- //NOTES
-
- // this method takes in 2 arguments: 
-        // 1. Where to open the info window
-        // 2. Precise place we want the info window to display.
-        // infoWindow.open(map, marker);
