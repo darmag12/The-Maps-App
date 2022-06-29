@@ -160,4 +160,51 @@ input[id='destination']:focus {
   height: 200px;
 }
 
+/* Google maps classes for the search widget */
+.pac-container {
+  background-color: #fff;
+  z-index: 1000;
+  border-radius: 2px;
+  border-top: 1px solid #32557c;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.pac-item {
+  cursor: pointer;
+  padding: 5px 4px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  line-height: 2;
+  text-align: left;
+  border-top: 1px solid #e6e6e6;
+  font-size: 12.5px;
+  color: #32557c;
+}
+
+.pac-icon {
+  width: 15px;
+  height: 20px;
+  margin-right: 7px;
+  margin-top: 6px;
+  display: inline-block;
+  vertical-align: top;
+  background-image: url(https://i4express.com/wp-content/themes/vega/plan-your-trip/images/reThink-widget-location-icon.png) !important;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 15px auto;
+}
+
+.pac-item-query {
+  font-size: 14.5px;
+  padding-right: 3px;
+  color: #60a115;
+}
+
+.pac-item:hover {
+  transform: scale(1.01);
+  background-color: rgb(242, 242, 242);
+}
+
 /* #32557c */
