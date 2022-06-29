@@ -7,7 +7,7 @@ const baseUrl = `https://rethink.agilemile.com/?agile_tp=true&trip_type=1`;
 const domElements = {
   commuteOrigin: document.getElementById('origin'),
   commuteDestination: document.getElementById('destination'),
-  commuteSearch: document.getElementById('commute_search')
+  commuteSearch: document.getElementById('commute_search'),
 };
 
 // Created the script tag & set the appropriate attributes
@@ -16,11 +16,11 @@ script.src = `https://maps.googleapis.com/maps/api/js?key=${appKey}&libraries=pl
 script.async = true;
 
 // Attached callback function to the `window` object
-window.initMap = function() {
+window.initMap = function () {
   const options = {
     componentRestrictions: { country: ['us'] },
     fields: ['formatted_address', 'geometry', 'name'],
-    strictBounds: false
+    strictBounds: false,
   };
   const originAutocomplete = new google.maps.places.Autocomplete(
     domElements.commuteOrigin,
@@ -37,7 +37,7 @@ window.initMap = function() {
     'place_changed',
     onDestinationPlaceChanged
   );
-  // domElements.commuteSearch.addEventListener('click', onCommuteSearch);
+  domElements.commuteSearch.addEventListener('click', onCommuteSearch);
 
   // get origin details
   function onOriginPlaceChanged() {
@@ -97,23 +97,15 @@ window.initMap = function() {
     }
   }
 
-  // search commute
-  // function onCommuteSearch(e) {
-  //   // prevent reload onclick
-  //   // e.preventDefault();
-  //   let commuteUrl;
-  //   let getOrigin = onOriginPlaceChanged;
-  //   let getDestinaton = onDestinationPlaceChanged;
-  //   if (
-  //     !domElements.commuteOrigin.value === '' &&
-  //     !domElements.commuteDestination.value === ''
-  //   ) {
-  //     commuteUrl = `${baseUrl}${getOrigin()}${getDestinaton()}`;
-  //     domElements.commuteSearch.href = commuteUrl;
-  //     // console.log(getOrigin());
-  //     // console.log(getDestinaton());
-  //   }
-  // }
+  // search commute btn
+  function onCommuteSearch() {
+    // delay reload by 2 seconds
+    const delayExec = setTimeout(reloadPage, 2000);
+    // Clear the form by reloading page
+    function reloadPage() {
+      location.reload();
+    }
+  }
 };
 // Appended the 'script' element to 'head'
 document.head.appendChild(script);
